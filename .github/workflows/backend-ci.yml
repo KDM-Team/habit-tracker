@@ -13,13 +13,16 @@ jobs:
           branch="${GITHUB_HEAD_REF:-${GITHUB_REF##*/}}"
           echo "Branch name: $branch"
           if [[ ! "$branch" =~ ^[A-Za-z0-9_-]+_ ]]; then
-            echo "Branch name must start with a task identifier and underscore, e.g. HT-1-task_title_name"
+            echo "Branch name must start with a task identifier and underscore, e.g. HT-1_task_title"
             exit 1
           fi
 
   check-commit-messages:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
       - name: Fetch commit messages
         run: |
           if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
@@ -28,7 +31,7 @@ jobs:
           else
             commit_messages=$(git log -1 --pretty=format:%s)
           fi
-          
+
           status=0
           for msg in $commit_messages; do
             echo "Checking commit message: $msg"
@@ -37,5 +40,5 @@ jobs:
               status=1
             fi
           done
-          
+
           exit $status
