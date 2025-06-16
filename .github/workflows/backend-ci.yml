@@ -33,7 +33,7 @@ jobs:
           fi
 
           status=0
-          for msg in $commit_messages; do
+          echo "$commit_messages" | while IFS= read -r msg; do
             echo "Checking commit message: $msg"
             if [[ ! $msg =~ ^\[[A-Za-z0-9_-]+\] ]]; then
               echo "Commit message must start with [TASK-ID], e.g. [HT-1] Description"
