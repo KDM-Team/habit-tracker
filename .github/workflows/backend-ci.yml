@@ -24,11 +24,11 @@ jobs:
         run: |
           if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
             commits_url=$(jq -r .pull_request.commits_url "$GITHUB_EVENT_PATH")
-            commit_messages=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$commits_url" | jq -r '.[].commit.message')
+            commit_messages=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$commits_url" | jq -r '.[].commit.message | split("\n")[0]')
           else
             commit_messages=$(git log -1 --pretty=format:%s)
           fi
-
+          
           status=0
           for msg in $commit_messages; do
             echo "Checking commit message: $msg"
@@ -37,5 +37,5 @@ jobs:
               status=1
             fi
           done
-
+          
           exit $status
