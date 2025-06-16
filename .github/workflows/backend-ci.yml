@@ -1,0 +1,44 @@
+name: Branch & commit message check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check-branch-name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch name
+        run: |
+          branch="${GITHUB_HEAD_REF:-${GITHUB_REF##*/}}"
+          echo "Branch name: $branch"
+          if [[ ! "$branch" =~ ^[A-Za-z0-9_-]+_ ]]; then
+            echo "Branch name must start with a task identifier and underscore, e.g. HT-1_task_title"
+            exit 1
+          fi
+
+  check-commit-messages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+      - name: Fetch commit messages
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            commits_url=$(jq -r .pull_request.commits_url "$GITHUB_EVENT_PATH")
+            commit_messages=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$commits_url" | jq -r '.[].commit.message | split("\n")[0]')
+          else
+            commit_messages=$(git log -1 --pretty=format:%s)
+          fi
+
+          status=0
+          echo "$commit_messages" | while IFS= read -r msg; do
+            echo "Checking commit message: $msg"
+            if [[ ! $msg =~ ^\[[A-Za-z0-9_-]+\] ]]; then
+              echo "Commit message must start with [TASK-ID], e.g. [HT-1] Description"
+              status=1
+            fi
+          done
+
+          exit $status
