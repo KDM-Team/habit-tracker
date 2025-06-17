@@ -5,7 +5,15 @@ db = SQLAlchemy()
 class Habit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
+    description = db.Column(db.String(250))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     def __repr__(self):
         return f"<Habit {self.name}>"
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description
+        }
