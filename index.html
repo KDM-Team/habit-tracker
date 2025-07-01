@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Habit Tracker</title>
+  <style>
+    body { font-family: Arial; max-width: 800px; margin: 40px auto; padding: 20px; }
+    h1 { color: #333; }
+    form { margin-bottom: 20px; }
+    input, textarea { display: block; margin-bottom: 10px; width: 100%; padding: 8px; }
+    button { padding: 8px 16px; }
+    .habit { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+  <h1>Habit Tracker</h1>
+
+  <form id="habit-form">
+    <input type="text" id="name" placeholder="Nazwa nawyku" required />
+    <textarea id="description" placeholder="Opis (opcjonalny)"></textarea>
+    <button type="submit">Dodaj nawyk</button>
+  </form>
+
+  <div id="habit-list"></div>
+
+  <script>
+    const apiUrl = 'http://localhost:5000/habits';
+
+    // Ładowanie nawyków
+    async function loadHabits() {
+      const res = await fetch(apiUrl);
+      const habits = await res.json();
+      const list = document.getElementById('habit-list');
+      list.innerHTML = '';
+      habits.forEach(habit => {
+        const div = document.createElement('div');
+        div.className = 'habit';
+        div.innerHTML = `
+          <strong>${habit.name}</strong><br/>
+          <small>${habit.description}</small><br/>
+          <button onclick="deleteHabit(${habit.id})">Usuń</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    // Dodawanie nawyku
+    document.getElementById('habit-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const description = document.getElementById('description').value.trim();
+
+      if (!name) return alert('Podaj nazwę nawyku');
+
+      await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description })
+      });
+
+      document.getElementById('habit-form').reset();
+      loadHabits();
+    });
+
+    // Usuwanie nawyku
+    async function deleteHabit(id) {
+      if (!confirm('Na pewno usunąć ten nawyk?')) return;
+
+      await fetch(`${apiUrl}/${id}`, {
+        method: 'DELETE'
+      });
+
+      loadHabits();
+    }
+
+    // Ładowanie na starcie
+    loadHabits();
+  </script>
+
+</body>
+</html>
