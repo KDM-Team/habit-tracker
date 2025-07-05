@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Habit Tracker</title>
+  <style>
+    body { font-family: Arial; max-width: 800px; margin: 40px auto; padding: 20px; }
+    h1 { color: #333; }
+    form { margin-bottom: 20px; }
+    input, textarea { display: block; margin-bottom: 10px; width: 100%; padding: 8px; }
+    button { padding: 8px 16px; margin-right: 5px; }
+    .habit { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+  <h1>Habit Tracker</h1>
+
+  <form id="habit-form">
+    <input type="text" id="name" placeholder="Nazwa nawyku" required />
+    <textarea id="description" placeholder="Opis (opcjonalny)"></textarea>
+    <button type="submit" id="submit-button">Dodaj nawyk</button>
+    <button type="button" id="cancel-edit" style="display:none;">Anuluj edycję</button>
+  </form>
+
+  <div id="habit-list"></div>
+
+  <script>
+    const apiUrl = 'http://localhost:5000/habits';
+    let editingId = null;
+
+    async function loadHabits() {
+      const res = await fetch(apiUrl);
+      const habits = await res.json();
+      const list = document.getElementById('habit-list');
+      list.innerHTML = '';
+      habits.forEach(habit => {
+        const div = document.createElement('div');
+        div.className = 'habit';
+        div.innerHTML = `
+          <strong>${habit.name}</strong><br/>
+          <small>${habit.description}</small><br/>
+          <button onclick="editHabit(${habit.id}, '${habit.name}', '${habit.description}')">Edytuj</button>
+          <button onclick="deleteHabit(${habit.id})">Usuń</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    document.getElementById('habit-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const description = document.getElementById('description').value.trim();
+
+      if (!name) return alert('Podaj nazwę nawyku');
+
+      const method = editingId ? 'PUT' : 'POST';
+      const url = editingId ? `${apiUrl}/${editingId}` : apiUrl;
+
+      await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description })
+      });
+
+      resetForm();
+      loadHabits();
+    });
+
+    async function deleteHabit(id) {
+      if (!confirm('Na pewno usunąć ten nawyk?')) return;
+
+      await fetch(`${apiUrl}/${id}`, {
+        method: 'DELETE'
+      });
+
+      loadHabits();
+    }
+
+    function editHabit(id, name, description) {
+      editingId = id;
+      document.getElementById('name').value = name;
+      document.getElementById('description').value = description;
+      document.getElementById('submit-button').textContent = 'Zapisz zmiany';
+      document.getElementById('cancel-edit').style.display = 'inline';
+    }
+
+    function resetForm() {
+      editingId = null;
+      document.getElementById('habit-form').reset();
+      document.getElementById('submit-button').textContent = 'Dodaj nawyk';
+      document.getElementById('cancel-edit').style.display = 'none';
+    }
+
+    document.getElementById('cancel-edit').addEventListener('click', resetForm);
+
+    loadHabits();
+  </script>
+
+</body>
+</html>
