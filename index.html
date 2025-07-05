@@ -1,30 +1,30 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <title>Habit Tracker</title>
-  <style>
-    body { font-family: Arial; max-width: 800px; margin: 40px auto; padding: 20px; }
-    h1 { color: #333; }
-    form { margin-bottom: 20px; }
-    input, textarea { display: block; margin-bottom: 10px; width: 100%; padding: 8px; }
-    button { padding: 8px 16px; }
-    .habit { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Habit Tracker</title>
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 40px auto; padding: 20px; }
+        h1 { color: #333; }
+        form { margin-bottom: 20px; }
+        input, textarea { display: block; margin-bottom: 10px; width: 100%; padding: 8px; }
+        button { padding: 8px 16px; }
+        .habit { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+    </style>
 </head>
 <body>
 
-  <h1>Habit Tracker</h1>
+<h1>Habit Tracker</h1>
 
-  <form id="habit-form">
-    <input type="text" id="name" placeholder="Nazwa nawyku" required />
+<form id="habit-form">
+    <input type="text" id="name" placeholder="Nazwa nawyku" required/>
     <textarea id="description" placeholder="Opis (opcjonalny)"></textarea>
     <button type="submit">Dodaj nawyk</button>
-  </form>
+</form>
 
-  <div id="habit-list"></div>
+<div id="habit-list"></div>
 
-  <script>
+<script>
     const apiUrl = 'http://localhost:5000/habits';
 
     // Ładowanie nawyków
@@ -76,7 +76,7 @@
 
     // Ładowanie na starcie
     loadHabits();
-  </script>
+</script>
 
 </body>
 </html>
