@@ -1,0 +1,3 @@
+site_name: Habit Tracker
+nav:
+  - Home: index.md
