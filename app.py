@@ -8,8 +8,8 @@ from models import db, Habit
 
 def create_app():
     app = Flask(__name__)
-    CORS(app)
     app.config.from_object(Config)
+    CORS(app)
     db.init_app(app)
     migrate = Migrate(app, db)
 
@@ -44,7 +44,7 @@ def create_app():
         habit = Habit.query.get_or_404(habit_id)
         return jsonify(habit.to_dict())
 
-    @app.route('/habits/<int:habit_id>', methods=['PATCH'])
+    @app.route('/habits/<int:habit_id>', methods=['PUT','PATCH'])
     def update_habit(habit_id):
         habit = Habit.query.get_or_404(habit_id)
         data = request.get_json()
